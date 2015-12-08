@@ -15,9 +15,25 @@ class Cube(object):
                 if node & bit == 0:
                     self.edges.add(frozenset((node, node | bit)))
 
+class Butterfly(object):
+    
+    def __init__(self, m):
+        '''Create an m-dimensional butterfly network.'''
+        self.nodes = set()
+        self.edges = set()
+        in_level_max = pow(2, m)
+        for level in range(m):
+            for in_level in range(in_level_max):
+                node = (level, in_level)
+                self.nodes.add(node)
+                down = ((level + 1) % m, in_level)
+                down_right = ((level + 1) % m, (in_level + 1) % in_level_max)
+                self.edges.add(frozenset((node, down)))
+                self.edges.add(frozenset((node, down_right)))
+
 if __name__ == '__main__':
     import pprint
-    c = Cube(2)
-    print(c.nodes)
-    print(c.edges)
+    g = Butterfly(2)
+    pprint.pprint(g.nodes)
+    pprint.pprint(g.edges)
     
