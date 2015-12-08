@@ -31,6 +31,18 @@ class Butterfly(object):
                 self.edges.add(frozenset((node, down)))
                 self.edges.add(frozenset((node, down_right)))
 
+class NestedClique(object):
+    
+    def __init__(self, m):
+        '''Create an m-dimensional nested clique.'''
+        (self.nodes, self.edges) = self._make(m)
+
+    def _make(self, m):
+        if (m == 0):
+            nodes = frozenset([()])
+            edges = frozenset([])
+        return (nodes, edges)
+    
 if __name__ == '__main__':
     import pprint
     g = Butterfly(2)

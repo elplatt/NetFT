@@ -55,6 +55,13 @@ class TestButterfly(unittest.TestCase):
         self.assertEqual(net.nodes, butterfly_nodes)
         self.assertEqual(net.edges, butterfly_edges)
 
+class TestNestedClique(unittest.TestCase):
+    
+    def test_base(self):
+        net = networks.NestedClique(0)
+        self.assertEqual(net.nodes, set([()]))
+        self.assertEqual(net.edges, set())
+
 if __name__ == '__main__':
     unittest.main()
     
