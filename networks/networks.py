@@ -19,7 +19,7 @@ class Butterfly(object):
     
     def __init__(self, m):
         '''Create an m-dimensional butterfly network.'''
-        self.nodes = set()
+        self.nodes = set((0,0))
         self.edges = set()
         in_level_max = pow(2, m)
         for level in range(m):
