@@ -38,9 +38,14 @@ class NestedClique(object):
         (self.nodes, self.edges) = self._make(m)
 
     def _make(self, m):
-        if (m == 0):
-            nodes = frozenset([()])
-            edges = frozenset([])
+        if m == 0:
+            nodes = set([()])
+            edges = set([])
+        elif m == 1:
+            nodes = set([(0,), (1,)])
+            edges = set([frozenset([(0,), (1,)])])
+        else:
+            pass
         return (nodes, edges)
     
 if __name__ == '__main__':

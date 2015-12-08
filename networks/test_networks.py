@@ -61,6 +61,11 @@ class TestNestedClique(unittest.TestCase):
         net = networks.NestedClique(0)
         self.assertEqual(net.nodes, set([()]))
         self.assertEqual(net.edges, set())
+        
+    def test_one(self):
+        net = networks.NestedClique(1)
+        self.assertEqual(net.nodes, set([(0,), (1,)]))
+        self.assertEqual(net.edges, set([ frozenset([(0,), (1,)]) ]))
 
 if __name__ == '__main__':
     unittest.main()
