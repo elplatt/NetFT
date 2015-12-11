@@ -1,6 +1,27 @@
 import math
 
-class Cube(object):
+import networkx as nx
+
+def to_nx(nodes, edges):
+    G = nx.Graph()
+    G.add_nodes_from(nodes)
+    G.add_edges_from(edges)
+    return G
+
+class Network(object):
+    
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def makeGraph(cls, m):
+        print cls
+        net = cls(m)
+        G = to_nx(net.nodes, net.edges)
+        del net
+        return G
+
+class Cube(Network):
     
     def __init__(self, m):
         '''Create an m-dimensional cube.'''
@@ -15,8 +36,9 @@ class Cube(object):
             for bit in basis:
                 if node & bit == 0:
                     self.edges.add(frozenset((node, node | bit)))
+    
 
-class Butterfly(object):
+class Butterfly(Network):
     
     def __init__(self, m):
         '''Create an m-dimensional butterfly network.'''
@@ -32,7 +54,7 @@ class Butterfly(object):
                 self.edges.add(frozenset((node, down)))
                 self.edges.add(frozenset((node, down_right)))
 
-class NestedClique(object):
+class NestedClique(Network):
     
     def __init__(self, m):
         '''Create an m-dimensional nested clique.'''
