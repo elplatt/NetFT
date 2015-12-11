@@ -37,6 +37,15 @@ class NestedClique(object):
     def __init__(self, m):
         '''Create an m-dimensional nested clique.'''
         N = NestedClique._N(m)
+        self.nodes = set()
+        self.edges = set()
+        if m == 0:
+            self.nodes = set([ () ])
+        elif m == 1:
+            self.nodes = set([ (0,), (1,) ])
+            self.edges = set([ frozenset([(0,), (1,)]) ])
+        else:
+            pass
         
     
     @classmethod
