@@ -57,6 +57,14 @@ class TestButterfly(unittest.TestCase):
 
 class TestNestedClique(unittest.TestCase):
     
+    def test_N(self):
+        net = networks.NestedClique(0)
+        self.assertEqual(net._N(4), 1806)
+    
+    def test_z2v(self):
+        z = 0*1 + 2*2 + 3*6
+        self.assertEqual(networks.NestedClique._z2v(z), [0, 2, 3])
+    
     def test_base(self):
         net = networks.NestedClique(0)
         self.assertEqual(net.nodes, set([()]))
