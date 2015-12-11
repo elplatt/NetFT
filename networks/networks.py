@@ -39,14 +39,18 @@ class NestedClique(object):
         N = NestedClique._N(m)
         self.nodes = set()
         self.edges = set()
-        if m == 0:
-            self.nodes = set([ () ])
-        elif m == 1:
-            self.nodes = set([ (0,), (1,) ])
-            self.edges = set([ frozenset([(0,), (1,)]) ])
-        else:
-            pass
-        
+        for z in range(N):
+            v = NestedClique._z2v(z, m)
+            self.nodes.add(tuple(v))
+            # Only add edges for odd nodes to prevent double counting
+            if z % 2 == 1:
+                # Create level-k edges by changing lowest k values
+                w = list(v)
+                zz = 0
+                for i in range(m):
+                    w[i] = (w[i] - 1 - zz) % (NestedClique._N(i) + 1)
+                    zz += NestedClique._N(i) * v[i]
+                    self.edges.add(frozenset( (tuple(v), tuple(w)) ))
     
     @classmethod
     def _v2z(cls, v):
@@ -57,12 +61,12 @@ class NestedClique(object):
         return z
     
     @classmethod
-    def _z2v(cls, z):
+    def _z2v(cls, z, m):
         '''Convert from integer to vertex.'''
         i = 0
         v = []
         zz = z
-        while zz > 0:
+        while zz > 0 or i < m:
             N = cls._N(i)
             nextN = cls._N(i + 1)
             remainder = zz % nextN

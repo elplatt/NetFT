@@ -31,6 +31,92 @@ butterfly_edges = set([
     , frozenset(((0, 2), (1, 0)))
 ])
 
+nq_two_nodes = set([ (0,0), (1,0), (0,1), (1,1), (0,2), (1,2) ])
+nq_two_edges = set([
+    frozenset([ (0,0), (1,2) ])
+    , frozenset([ (0,0), (1,0) ])
+    , frozenset([ (0,1), (1,0) ])
+    , frozenset([ (0,1), (1,1) ])
+    , frozenset([ (0,2), (1,1) ])
+    , frozenset([ (0,2), (1,2) ])    
+])
+
+nq_three_nodes = set([
+    (0,0,0), (1,0,0), (0,1,0), (1,1,0), (0,2,0), (1,2,0)
+    ,(0,0,1), (1,0,1), (0,1,1), (1,1,1), (0,2,1), (1,2,1)
+    ,(0,0,2), (1,0,2), (0,1,2), (1,1,2), (0,2,2), (1,2,2)
+    ,(0,0,3), (1,0,3), (0,1,3), (1,1,3), (0,2,3), (1,2,3)
+    ,(0,0,4), (1,0,4), (0,1,4), (1,1,4), (0,2,4), (1,2,4)
+    ,(0,0,5), (1,0,5), (0,1,5), (1,1,5), (0,2,5), (1,2,5)
+    ,(0,0,6), (1,0,6), (0,1,6), (1,1,6), (0,2,6), (1,2,6)
+])
+
+nq_three_edges = set([
+    frozenset([ (0,0,0), (1,0,0) ])
+    , frozenset([ (1,0,0), (0,1,0) ])
+    , frozenset([ (0,1,0), (1,1,0) ])
+    , frozenset([ (1,1,0), (0,2,0) ])
+    , frozenset([ (0,2,0), (1,2,0) ])
+    , frozenset([ (1,2,0), (0,0,0) ])
+    , frozenset([ (0,0,1), (1,0,1) ])
+    , frozenset([ (1,0,1), (0,1,1) ])
+    , frozenset([ (0,1,1), (1,1,1) ])
+    , frozenset([ (1,1,1), (0,2,1) ])
+    , frozenset([ (0,2,1), (1,2,1) ])
+    , frozenset([ (1,2,1), (0,0,1) ])
+    , frozenset([ (0,0,2), (1,0,2) ])
+    , frozenset([ (1,0,2), (0,1,2) ])
+    , frozenset([ (0,1,2), (1,1,2) ])
+    , frozenset([ (1,1,2), (0,2,2) ])
+    , frozenset([ (0,2,2), (1,2,2) ])
+    , frozenset([ (1,2,2), (0,0,2) ])
+    , frozenset([ (0,0,3), (1,0,3) ])
+    , frozenset([ (1,0,3), (0,1,3) ])
+    , frozenset([ (0,1,3), (1,1,3) ])
+    , frozenset([ (1,1,3), (0,2,3) ])
+    , frozenset([ (0,2,3), (1,2,3) ])
+    , frozenset([ (1,2,3), (0,0,3) ])
+    , frozenset([ (0,0,4), (1,0,4) ])
+    , frozenset([ (1,0,4), (0,1,4) ])
+    , frozenset([ (0,1,4), (1,1,4) ])
+    , frozenset([ (1,1,4), (0,2,4) ])
+    , frozenset([ (0,2,4), (1,2,4) ])
+    , frozenset([ (1,2,4), (0,0,4) ])
+    , frozenset([ (0,0,5), (1,0,5) ])
+    , frozenset([ (1,0,5), (0,1,5) ])
+    , frozenset([ (0,1,5), (1,1,5) ])
+    , frozenset([ (1,1,5), (0,2,5) ])
+    , frozenset([ (0,2,5), (1,2,5) ])
+    , frozenset([ (1,2,5), (0,0,5) ])
+    , frozenset([ (0,0,6), (1,0,6) ])
+    , frozenset([ (1,0,6), (0,1,6) ])
+    , frozenset([ (0,1,6), (1,1,6) ])
+    , frozenset([ (1,1,6), (0,2,6) ])
+    , frozenset([ (0,2,6), (1,2,6) ])
+    , frozenset([ (1,2,6), (0,0,6) ])
+    , frozenset([ (1,0,0), (0,1,5) ])
+    , frozenset([ (1,1,0), (0,2,3) ])
+    , frozenset([ (1,2,0), (0,0,1) ])
+    , frozenset([ (1,0,1), (0,1,6) ])
+    , frozenset([ (1,1,1), (0,2,4) ])
+    , frozenset([ (1,2,1), (0,0,2) ])
+    , frozenset([ (1,0,2), (0,1,0) ])
+    , frozenset([ (1,1,2), (0,2,5) ])
+    , frozenset([ (1,2,2), (0,0,3) ])
+    , frozenset([ (1,0,3), (0,1,1) ])
+    , frozenset([ (1,1,3), (0,2,6) ])
+    , frozenset([ (1,2,3), (0,0,4) ])
+    , frozenset([ (1,0,4), (0,1,2) ])
+    , frozenset([ (1,1,4), (0,2,0) ])
+    , frozenset([ (1,2,4), (0,0,5) ])
+    , frozenset([ (1,0,5), (0,1,3) ])
+    , frozenset([ (1,1,5), (0,2,1) ])
+    , frozenset([ (1,2,5), (0,0,6) ])
+    , frozenset([ (1,0,6), (0,1,4) ])
+    , frozenset([ (1,1,6), (0,2,2) ])
+    , frozenset([ (1,2,6), (0,0,0) ])
+])
+
 class TestCube(unittest.TestCase):
     
     def test_base(self):
@@ -63,7 +149,7 @@ class TestNestedClique(unittest.TestCase):
     
     def test_z2v(self):
         z = 0*1 + 2*2 + 3*6
-        self.assertEqual(networks.NestedClique._z2v(z), [0, 2, 3])
+        self.assertEqual(networks.NestedClique._z2v(z, 3), [0, 2, 3])
     
     def test_base(self):
         net = networks.NestedClique(0)
@@ -74,6 +160,16 @@ class TestNestedClique(unittest.TestCase):
         net = networks.NestedClique(1)
         self.assertEqual(net.nodes, set([(0,), (1,)]))
         self.assertEqual(net.edges, set([ frozenset([(0,), (1,)]) ]))
+        
+    def test_two(self):
+        net = networks.NestedClique(2)
+        self.assertEqual(net.nodes, nq_two_nodes)
+        self.assertEqual(net.edges, nq_two_edges)
+
+    def test_three(self):
+        net = networks.NestedClique(3)
+        self.assertEqual(net.nodes, nq_three_nodes)
+        self.assertEqual(net.edges, nq_three_edges)
 
 if __name__ == '__main__':
     unittest.main()
