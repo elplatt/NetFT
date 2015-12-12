@@ -28,11 +28,12 @@ class Cube(Network):
         self.nodes = set(range(0,pow(2,m)))
         # Create edges
         self.edges = set()
-        basis = [pow(2, x) for x in range(0,m)]
+        basis = [pow(2, i) for i in range(m)]
         for node in self.nodes:
             # Add an edge for each bit, but only to nodes with higher ids
             # to avoid double counting.
-            for bit in basis:
+            for i in xrange(m):
+                bit = basis[i]
                 if node & bit == 0:
                     self.edges.add(frozenset((node, node | bit)))
     
@@ -44,6 +45,12 @@ class Cube(Network):
     def iterneighbors(cls, m, v):
         for i in xrange(m):
             yield v ^ (1 << i)
+    
+    @classmethod
+    def pathlength_counts(cls, m):
+        lengths = range(m + 1)
+        counts = [math.factorial(m) / math.factorial(h) / math.factorial(m-h) for h in lengths]
+        return (lengths, counts)
 
 class Butterfly(Network):
     
