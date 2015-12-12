@@ -128,6 +128,14 @@ class TestCube(unittest.TestCase):
         cube = networks.Cube(2)
         self.assertEqual(cube.nodes, square_nodes)
         self.assertEqual(cube.edges, square_edges)
+        
+    def test_iternodes(self):
+        nodes = set(networks.Cube.iternodes(2))
+        self.assertEqual(nodes, square_nodes)
+        
+    def test_iterneighbors(self):
+        neighbors = set(networks.Cube.iterneighbors(2, 3))
+        self.assertEqual(neighbors, set([1,2]))
 
 class TestButterfly(unittest.TestCase):
     

@@ -15,7 +15,6 @@ class Network(object):
     
     @classmethod
     def makeGraph(cls, m):
-        print cls
         net = cls(m)
         G = to_nx(net.nodes, net.edges)
         del net
@@ -37,6 +36,14 @@ class Cube(Network):
                 if node & bit == 0:
                     self.edges.add(frozenset((node, node | bit)))
     
+    @classmethod
+    def iternodes(cls, m):
+        return xrange(pow(2,m))
+    
+    @classmethod
+    def iterneighbors(cls, m, v):
+        for i in xrange(m):
+            yield v ^ (1 << i)
 
 class Butterfly(Network):
     
