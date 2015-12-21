@@ -65,8 +65,10 @@ class Butterfly(Network):
                 self.nodes.add(node)
                 down = ((level + 1) % m, in_level)
                 down_right = ((level + 1) % m, in_level ^ (1 << level))
-                self.edges.add(frozenset((node, down)))
-                self.edges.add(frozenset((node, down_right)))
+                if node != down:
+                    self.edges.add(frozenset((node, down)))
+                if node != down_right:
+                    self.edges.add(frozenset((node, down_right)))
 
 class NestedClique(Network):
     

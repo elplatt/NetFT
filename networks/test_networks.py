@@ -144,6 +144,11 @@ class TestButterfly(unittest.TestCase):
         self.assertEqual(net.nodes, set([(0,0)]))
         self.assertEqual(net.edges, set())
 
+    def test_one(self):
+        net = networks.Butterfly(1)
+        self.assertEqual(net.nodes, set([(0,0), (0,1)]))
+        self.assertEqual(net.edges, set([ frozenset([ (0,0), (0,1) ]) ]))
+
     def test_two(self):
         net = networks.Butterfly(2)
         self.assertEqual(net.nodes, butterfly_nodes)
