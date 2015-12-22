@@ -82,20 +82,33 @@ class NestedClique(Network):
             self.nodes.add(tuple(v))
             # Only add edges for odd nodes to prevent double counting
             if z % 2 == 1:
-                # Create level-k edges by changing lowest k values
-                w = list(v)
-                zz = 0
-                for i in range(m):
-                    w[i] = (w[i] - 1 - zz) % (NestedClique._N(i) + 1)
-                    zz += NestedClique._N(i) * v[i]
-                    self.edges.add(frozenset( (tuple(v), tuple(w)) ))
+                for w in NestedClique.neighbors(v):
+                    self.edges.add(frozenset( (tuple(v), w) ))
+    
+    @classmethod
+    def neighbors(cls, v):
+        '''Returns an iterator of the neighbors of a given node.'''
+        # See paper notebook ELP-UM-001 p.51
+        m = len(v)
+        z = cls._v2z(v)
+        w = list(v)
+        zz = 0
+        # Create level-k edges by changing lowest k values
+        for i in range(m):
+            Ni = NestedClique._N(i)
+            if z % 2 == 1:
+                w[i] = (w[i] - 1 - zz) % (Ni + 1)
+            else:
+                w[i] = (w[i] + 1 + ((zz - 1) % Ni) ) % (Ni + 1)
+            zz += Ni * v[i]
+            yield tuple(w)
     
     @classmethod
     def _v2z(cls, v):
         '''Convert from vertex to integer.'''
         z = 0
         for (i, vi) in enumerate(v):
-            z += self._N(i) * vi
+            z += cls._N(i) * vi
         return z
     
     @classmethod

@@ -163,6 +163,11 @@ class TestNestedClique(unittest.TestCase):
     def test_z2v(self):
         z = 0*1 + 2*2 + 3*6
         self.assertEqual(networks.NestedClique._z2v(z, 3), [0, 2, 3])
+        
+    def test_v2z(self):
+        v = (0, 2, 3)
+        z =  0*1 + 2*2 + 3*6
+        self.assertEqual(networks.NestedClique._v2z(v), z)
     
     def test_base(self):
         net = networks.NestedClique(0)
