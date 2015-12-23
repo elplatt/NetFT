@@ -86,6 +86,28 @@ class NestedClique(Network):
                     self.edges.add(frozenset( (tuple(v), w) ))
     
     @classmethod
+    def path_length_histogram(cls, m):
+        surface = set([tuple([0] * m)])
+        last_surface = set([])
+        dist = []
+        count = []
+        surface_dist = 0
+        while len(surface) > 0:
+            dist.append(surface_dist)
+            count.append(len(surface))
+            next_surface = set()
+            for v in surface:
+                for w in cls.neighbors(v):
+                    if (w not in last_surface
+                            and w not in surface):
+                        next_surface.add(w)
+            last_surface = surface
+            surface = next_surface
+            surface_dist += 1
+        return (dist, count)
+        
+    
+    @classmethod
     def neighbors(cls, v):
         '''Returns an iterator of the neighbors of a given node.'''
         # See paper notebook ELP-UM-001 p.51
@@ -98,9 +120,10 @@ class NestedClique(Network):
             Ni = NestedClique._N(i)
             if z % 2 == 1:
                 w[i] = (w[i] - 1 - zz) % (Ni + 1)
+                zz += Ni * v[i]
             else:
-                w[i] = (w[i] + 1 + ((zz - 1) % Ni) ) % (Ni + 1)
-            zz += Ni * v[i]
+                w[i] = (w[i] + 1 + zz ) % (Ni + 1)
+                zz += Ni * w[i]
             yield tuple(w)
     
     @classmethod
