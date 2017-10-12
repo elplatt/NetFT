@@ -28,7 +28,6 @@ net_file = "external/as20000102.csv"
 out_file = "stats.csv"
 try:
     job_id = os.environ["PBS_ARRAYID"]
-    exp_name = exp_name
 except KeyError:
     job_id = 0
 exp_name = "router_targeted " + str(job_id)
@@ -60,7 +59,7 @@ def rewire_butterfly(g, fraction, butterfly_m):
     num_bnodes = len(bf_nodes)
     # Only sample nodes that can be completely rewired
     # This list maps butterfly node labels to router node labels
-    rewire_nodes = random.sample([n for n in g.nodes() if len(g.neighbors(n)) >= 4], num_bnodes)
+    rewire_nodes = random.sample([n for n in g.nodes() if len(list(g.neighbors(n))) >= 4], num_bnodes)
     router_to_bf = dict([(r, b) for b, r in enumerate(rewire_nodes)])
     router_edges = set()
     for rv in rewire_nodes:
@@ -69,7 +68,7 @@ def rewire_butterfly(g, fraction, butterfly_m):
                 router_edges.add(tuple(sorted([rv, rw])))
     router_edges = list(router_edges)
     random.shuffle(router_edges)
-    to_rewire = int(math.floor(fraction * len(router_edges)))
+    to_rewire = int(math.floor(fraction * len(bf_edges)))
     for i in range(to_rewire):
         rv, rw = router_edges.pop()
         g.remove_edge(rv, rw)
