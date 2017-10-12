@@ -11,9 +11,9 @@ import sys
 import time
 from multiprocessing import Process, Queue
 import networkx as nx
-import networkx.algorithms.centrality as nxcent
-import networkx.algorithms.distance_measures as nxdist
-import networkx.algorithms.components as nxcomp
+from networkx.algorithms.components import connected_components
+from networkx.algorithms.centrality.betweenness import betweenness_centrality
+from networkx.algorithms.distance_measures import diameter
 import numpy as np
 import elp_networks as elpnet
 import elp_networks.algorithms as elpalg
@@ -99,7 +99,7 @@ node_count = len(nodes)
 # In[ ]:
 
 def do_centrality_work(g):
-    centralities = nxcent.betweenness_centrality(g, normalized=False)
+    centralities = betweenness_centrality(g, normalized=False)
     v, c = max(centralities.iteritems(), key=lambda x: x[1])
     return v, c
 
@@ -118,7 +118,7 @@ def centrality_worker(graph_q, component_inq, centrality_outq):
 # In[ ]:
 
 def do_component_work(g):
-    return list(nxcomp.connected_components(g))
+    return list(connected_components(g))
 
 def component_worker(component_inq, diameter_inq, size_inq):
     while True:
@@ -137,7 +137,7 @@ def do_diameter_work(components, g):
         if source in giant_nodes and target in giant_nodes:
             giant_edges.append( (source, target) )
     giant = nx.Graph(giant_edges)
-    return nxdist.diameter(giant)
+    return diameter(giant)
 
 def diameter_worker(diameter_inq, diameter_outq):
     while True:
