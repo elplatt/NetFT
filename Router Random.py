@@ -3,7 +3,7 @@
 
 # In[ ]:
 
-get_ipython().magic(u'pylab inline')
+import math
 import os
 import random
 import re
@@ -11,9 +11,8 @@ import sys
 import time
 from multiprocessing import Process, Queue
 import networkx as nx
-import networkx.algorithms.centrality as nxcent
-import networkx.algorithms.distance_measures as nxdist
-import networkx.algorithms.components as nxcomp
+from networkx.algorithms.components import connected_components
+from networkx.algorithms.distance_measures import diameter
 import numpy as np
 import elp_networks as elpnet
 import elp_networks.algorithms as elpalg
@@ -22,24 +21,61 @@ import logbook
 
 # In[ ]:
 
-random.seed(hash('''
-    Build a man a fire, and he'll be warm for a day.
-    Set a man on fire, and he'll be warm for the rest of his life.
-                                                –Terry Pratchett
-'''))
+rewire_f = 0.1
+butterfly_m = 7
+net_file = "external/as20000102.csv"
+out_file = "stats.csv"
+try:
+    job_id = os.environ["PBS_ARRAYID"]
+except KeyError:
+    job_id = 0
+exp_name = "router_random"
+exp_suffix = str(job_id)
+exp_ts = str(time.time())
 
 
 # In[ ]:
 
-try:
-    job_id = os.environ["PBS_ARRAYID"]
-    exp_name = exp_name
-except KeyError:
-    job_id = 0
+random.seed(hash('''
+    Build a man a fire, and he'll be warm for a day.
+    Set a man on fire, and he'll be warm for the rest of his life.
+                                                –Terry Pratchett
+''' + exp_ts + str(job_id)))
 
-net_file = "external/as20000102.csv"
-exp_name = "router_random " + str(job_id)
-exp_ts = str(time.time())
+
+# In[ ]:
+
+def rewire_butterfly(g, fraction, butterfly_m):
+    m = butterfly_m
+    # Create butterfly and shuffle edges
+    butterfly = elpnet.Butterfly(m)
+    bf_nodes = list(butterfly.int_nodes())
+    bf_edges = set()
+    for bv in bf_nodes:
+        for bw in butterfly.int_neighbors(bv):
+            bf_edges.add(tuple(sorted([bv,bw])))
+    bf_edges = list(bf_edges)
+    random.shuffle(bf_edges)
+    num_bnodes = len(bf_nodes)
+    # Only sample nodes that can be completely rewired
+    # This list maps butterfly node labels to router node labels
+    rewire_nodes = random.sample([n for n in g.nodes() if len(list(g.neighbors(n))) >= 4], num_bnodes)
+    router_to_bf = dict([(r, b) for b, r in enumerate(rewire_nodes)])
+    router_edges = set()
+    for rv in rewire_nodes:
+        for rw in g.neighbors(rv):
+            if rw in rewire_nodes:
+                router_edges.add(tuple(sorted([rv, rw])))
+    router_edges = list(router_edges)
+    random.shuffle(router_edges)
+    to_rewire = int(math.floor(fraction * len(bf_edges)))
+    for i in range(to_rewire):
+        rv, rw = router_edges.pop()
+        g.remove_edge(rv, rw)
+        bv, bw = bf_edges.pop()
+        rv = rewire_nodes[bv]
+        rw = rewire_nodes[bw]
+        g.add_edge(rv, rw)
 
 
 # In[ ]:
@@ -62,52 +98,49 @@ node_count = len(nodes)
 
 # In[ ]:
 
-def do_failure_work(edge_list):
-    sources, targets = zip(*edge_list)
-    nodes = set(sources) | set(targets)
-    failed = random.choice(list(nodes))
-    return failed
+def do_failure_work(g):
+    return random.choice(list(g.nodes()))
 
-def failure_worker(edges_q, component_inq, failure_outq):
+def failure_worker(graph_q, component_inq, failure_outq):
     while True:
-        edge_list = edges_q.get()
-        component_inq.put(edge_list)
-        v = do_failure_work(edge_list)
+        g = graph_q.get()
+        component_inq.put(g)
+        v = do_failure_work(g)
         failure_outq.put(v)
-        next_edges = [(s,t) for s,t in edge_list if s != v and t != v]
-        if len(next_edges) > 0:
-            edges_q.put(next_edges)
+        next_g = g.copy()
+        next_g.remove_node(v)
+        if len(list(next_g.edges())) > 0:
+            graph_q.put(next_g)
 
 
 # In[ ]:
 
-def do_component_work(edge_list):
-    g = nx.Graph(edge_list)
-    return list(nxcomp.connected_components(g))
+def do_component_work(g):
+    return list(connected_components(g))
 
 def component_worker(component_inq, diameter_inq, size_inq):
     while True:
-        edge_list = component_inq.get()
-        components = do_component_work(edge_list)
-        diameter_inq.put( (components, edge_list) )
+        g = component_inq.get()
+        components = do_component_work(g)
+        diameter_inq.put( (components, g) )
         size_inq.put(components)
 
 
 # In[ ]:
 
-def do_diameter_work(components, edge_list):
+def do_diameter_work(components, g):
     giant_nodes = set(max(components, key=len))
     giant_edges = []
-    for source, target in edge_list:
+    for source, target in g.edges():
         if source in giant_nodes and target in giant_nodes:
             giant_edges.append( (source, target) )
-    g = nx.Graph(giant_edges)
-    return nxdist.diameter(g)
+    giant = nx.Graph(giant_edges)
+    return diameter(giant)
 
 def diameter_worker(diameter_inq, diameter_outq):
     while True:
-        components, edge_list = diameter_inq.get()
-        diameter = do_diameter_work(components, edge_list)
+        components, g = diameter_inq.get()
+        diameter = do_diameter_work(components, g)
         diameter_outq.put(diameter)
 
 
@@ -130,7 +163,7 @@ def size_worker(size_inq, size_outq):
 
 # In[ ]:
 
-edges_q = Queue()
+graph_q = Queue()
 failure_outq = Queue()
 component_inq = Queue()
 diameter_inq = Queue()
@@ -138,10 +171,17 @@ diameter_outq = Queue()
 size_inq = Queue()
 size_outq = Queue()
 
-edges_q.put(edge_list)
+exp = logbook.Experiment(exp_name, suffix=exp_suffix)
+log = exp.get_logger()
 
+log.info("Rewiring graph")
+g = nx.Graph(edge_list)
+rewire_butterfly(g, rewire_f, butterfly_m)
+graph_q.put(g)
+
+log.info("Starting workers")
 workers = []
-workers.append(Process(target=failure_worker, args=(edges_q, component_inq, failure_outq)))
+workers.append(Process(target=failure_worker, args=(graph_q, component_inq, failure_outq)))
 workers.append(Process(target=component_worker, args=(component_inq, diameter_inq, size_inq)))
 workers.append(Process(target=diameter_worker, args=(diameter_inq, diameter_outq)))
 workers.append(Process(target=size_worker, args=(size_inq, size_outq)))
@@ -150,32 +190,26 @@ for w in workers:
     w.daemon = True
     w.start()
     
-exp = logbook.Experiment(exp_name)
-log = exp.get_logger()
-with open(exp.get_filename("targeted_router.csv"), "wb") as out:
+with open(exp.get_filename(out_file), "wb") as out:
     log.info("Starting")
     finished = 0
-    out.write("uid,removed,diameter,size,failed,node_count\n")
+    out.write("removed,diameter,size,failed,node_count,rewire_f,butterfly_m\n")
     while finished < node_count:
         log.info("Iteration {}".format(finished))
-        log.info("  Finding failed node")
+        log.info("  Finding betweenness")
         label = failure_outq.get()
         log.info("  Finding diameter")
         diameter = diameter_outq.get()
         log.info("  Finding size")
         size = size_outq.get()
         log.info("  Writing row")
-        uid = str(exp_ts) + '-' + str(job_id)
-        row = [uid, finished, diameter, size, label,node_count]
+        row = [finished, diameter, size, label, node_count, rewire_f, butterfly_m]
         out.write(",".join([str(d) for d in row]) + "\n")
         out.flush()
         finished += 1
+        if finished >= 500:
+            break
 log.info("Finished successfully")
-
-
-# In[ ]:
-
-exp.start_ts
 
 
 # In[ ]:

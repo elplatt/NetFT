@@ -30,7 +30,7 @@ try:
     job_id = os.environ["PBS_ARRAYID"]
 except KeyError:
     job_id = 0
-exp_name = "router_targeted
+exp_name = "router_targeted"
 exp_suffix = str(job_id)
 exp_ts = str(time.time())
 
