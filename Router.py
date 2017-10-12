@@ -30,7 +30,8 @@ try:
     job_id = os.environ["PBS_ARRAYID"]
 except KeyError:
     job_id = 0
-exp_name = "router_targeted " + str(job_id)
+exp_name = "router_targeted
+exp_suffix = str(job_id)
 exp_ts = str(time.time())
 
 
@@ -173,10 +174,15 @@ diameter_outq = Queue()
 size_inq = Queue()
 size_outq = Queue()
 
+exp = logbook.Experiment(exp_name, suffix=exp_suffix)
+log = exp.get_logger()
+
+log.info("Rewiring graph")
 g = nx.Graph(edge_list)
 rewire_butterfly(g, rewire_f, butterfly_m)
 graph_q.put(g)
 
+log.info("Starting workers")
 workers = []
 workers.append(Process(target=centrality_worker, args=(graph_q, component_inq, centrality_outq)))
 workers.append(Process(target=component_worker, args=(component_inq, diameter_inq, size_inq)))
@@ -187,8 +193,6 @@ for w in workers:
     w.daemon = True
     w.start()
     
-exp = logbook.Experiment(exp_name)
-log = exp.get_logger()
 with open(exp.get_filename(out_file), "wb") as out:
     log.info("Starting")
     finished = 0
