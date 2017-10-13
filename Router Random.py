@@ -21,7 +21,7 @@ import logbook
 
 # In[ ]:
 
-rewire_f = 0.1
+rewire_f = float(sys.argv[1])
 butterfly_m = 7
 net_file = "external/as20000102.csv"
 out_file = "stats.csv"
@@ -163,12 +163,12 @@ def size_worker(size_inq, size_outq):
 
 # In[ ]:
 
-graph_q = Queue()
+graph_q = Queue(maxsize=2)
 failure_outq = Queue()
-component_inq = Queue()
-diameter_inq = Queue()
+component_inq = Queue(maxsize=2)
+diameter_inq = Queue(maxsize=2)
 diameter_outq = Queue()
-size_inq = Queue()
+size_inq = Queue(maxsize=2)
 size_outq = Queue()
 
 exp = logbook.Experiment(exp_name, suffix=exp_suffix)
