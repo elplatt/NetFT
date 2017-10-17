@@ -3,6 +3,7 @@
 
 # In[ ]:
 
+import json
 import math
 import os
 import random
@@ -15,6 +16,7 @@ from networkx.algorithms.components import connected_components
 from networkx.algorithms.connectivity import node_connectivity
 from networkx.algorithms.centrality.betweenness import betweenness_centrality
 from networkx.algorithms.distance_measures import diameter
+from networkx.readwrite import json_graph
 import numpy as np
 import elp_networks as elpnet
 import elp_networks.algorithms as elpalg
@@ -29,11 +31,12 @@ butterfly_m = 7
 num_conn_pairs = 150
 net_file = "external/as20000102.csv"
 out_file = "stats.csv"
+graph_file = "rewired.json"
 try:
     job_id = os.environ["PBS_ARRAYID"]
 except KeyError:
     job_id = 0
-exp_name = "router_targeted"
+exp_name = "router_targeted_" + "%02d" % (int(round(rewire_f * 100)))
 exp_suffix = str(job_id)
 exp_ts = str(time.time())
 
@@ -291,12 +294,14 @@ for w in workers:
     
 with open(exp.get_filename(out_file), "wb") as out:
     log.info("Starting")
+    node_betweenness = {}
     finished = 0
     out.write("removed,diameter,size,node_conn0_mean,node_conn0_se,node_conn1_mean,node_conn1_se,node_conn2_mean,node_conn2_se,node_conn3_mean,node_conn3_se,node_conn_pairs,failed,high_betweenness,node_count,rewire_f,butterfly_m,failure_type\n")
     while finished < node_count:
         log.info("Iteration {}".format(finished))
         log.info("  Finding betweenness")
         label, centrality = failure_outq.get()
+        node_betweenness[label] = centrality
         log.info("  Finding diameter")
         diameter = diameter_outq.get()
         log.info("  Finding size")
@@ -316,6 +321,11 @@ with open(exp.get_filename(out_file), "wb") as out:
         finished += 1
         if centrality == 0:
             break
+log.info("Finished simulation, writing graph")
+with open(exp.get_filename(graph_file), "wb") as f:
+    nx.set_node_attributes(g, 'betweenness_recalc', node_betweenness)
+    data = json_graph.node_link_data(g)
+    f.write(json.dumps(data))
 log.info("Finished successfully")
 
 
