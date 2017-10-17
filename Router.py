@@ -175,6 +175,7 @@ def size_worker(size_inq, size_outq):
 
 def sample_pairs(nodes, num):
     # Sample sources and targets
+    nodes = list(nodes)
     sources = random.sample(nodes, num)
     targets = random.sample(nodes, num)
     # Replace self loops
