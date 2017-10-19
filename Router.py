@@ -65,7 +65,7 @@ def rewire_butterfly(g, fraction, butterfly_m):
     random.shuffle(bf_edges)
     num_bnodes = len(bf_nodes)
     # Use highest-degree nodes to create router-butterfly map
-    rewire_nodes = [x[0] for x in sorted(g.degree().items(), key=lambda x: x[1], reverse=True)][:num_bnodes]
+    rewire_nodes = [x[0] for x in sorted(dict(g.degree()).items(), key=lambda x: x[1], reverse=True)][:num_bnodes]
     if False:
         # Only sample nodes that can be completely rewired
         # This list maps butterfly node labels to router node labels
