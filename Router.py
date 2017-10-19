@@ -186,7 +186,7 @@ def sample_pairs(nodes, num):
         if sources[i] == targets[i]:
             sources[i], sources[-1] = sources[-1], sources[i]
     if sources[-1] == targets[-1]:
-        sources[-1] = random.choice(set(nodes) - set(sources))
+        sources[-1] = random.choice(list(set(nodes) - set(sources))
     return zip(sources, targets)
     
 def expand(g, source, radius):
