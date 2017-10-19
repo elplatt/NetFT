@@ -26,8 +26,8 @@ import logbook
 # In[ ]:
 
 rewire_f = 0.9
-#rewire_f = sys.argv[1]
-butterfly_m = 7
+#rewire_f = float(sys.argv[1])
+butterfly_m = 9
 num_conn_pairs = 150
 net_file = "external/as20000102.csv"
 out_file = "stats.csv"
@@ -64,9 +64,12 @@ def rewire_butterfly(g, fraction, butterfly_m):
     bf_edges = list(bf_edges)
     random.shuffle(bf_edges)
     num_bnodes = len(bf_nodes)
-    # Only sample nodes that can be completely rewired
-    # This list maps butterfly node labels to router node labels
-    rewire_nodes = random.sample([n for n in g.nodes() if len(list(g.neighbors(n))) >= 4], num_bnodes)
+    # Use highest-degree nodes to create router-butterfly map
+    rewire_nodes = [x[0] for x in sorted(g.degree().items(), key=lambda x: x[1], reverse=True)][:num_bnodes]
+    if False:
+        # Only sample nodes that can be completely rewired
+        # This list maps butterfly node labels to router node labels
+        rewire_nodes = random.sample([n for n in g.nodes() if len(list(g.neighbors(n))) >= 4], num_bnodes)
     router_to_bf = dict([(r, b) for b, r in enumerate(rewire_nodes)])
     router_edges = set()
     for rv in rewire_nodes:
@@ -186,8 +189,9 @@ def sample_pairs(nodes, num):
         if sources[i] == targets[i]:
             sources[i], sources[-1] = sources[-1], sources[i]
     if sources[-1] == targets[-1]:
-        sources[-1] = random.choice(list(set(nodes) - set(sources))
-    return zip(sources, targets)
+        sources[-1] = random.choice(list(set(nodes) - set(sources)))
+    pairs = zip(sources, targets)
+    return pairs
     
 def expand(g, source, radius):
     if radius == 0:
@@ -314,6 +318,10 @@ with open(exp.get_filename(out_file), "wb") as out:
         node_conn2_mean, node_conn2_se = connectivity2_outq.get()
         log.info("  Finding 3-connectivity")
         node_conn3_mean, node_conn3_se = connectivity3_outq.get()
+        node_conn0_mean, node_conn0_se = 0,0
+        node_conn1_mean, node_conn1_se = 0,0
+        node_conn2_mean, node_conn2_se = 0,0
+        node_conn3_mean, node_conn3_se = 0,0
         log.info("  Writing row")
         row = [finished, diameter, size, node_conn0_mean, node_conn0_se, node_conn1_mean, node_conn1_se, node_conn2_mean, node_conn2_se, node_conn3_mean, node_conn3_se, num_conn_pairs, label, centrality, node_count, rewire_f, butterfly_m,"targeted"]
         out.write(",".join([str(d) for d in row]) + "\n")
