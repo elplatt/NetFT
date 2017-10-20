@@ -318,16 +318,12 @@ with open(exp.get_filename(out_file), "wb") as out:
         node_conn2_mean, node_conn2_se = connectivity2_outq.get()
         log.info("  Finding 3-connectivity")
         node_conn3_mean, node_conn3_se = connectivity3_outq.get()
-        node_conn0_mean, node_conn0_se = 0,0
-        node_conn1_mean, node_conn1_se = 0,0
-        node_conn2_mean, node_conn2_se = 0,0
-        node_conn3_mean, node_conn3_se = 0,0
         log.info("  Writing row")
         row = [finished, diameter, size, node_conn0_mean, node_conn0_se, node_conn1_mean, node_conn1_se, node_conn2_mean, node_conn2_se, node_conn3_mean, node_conn3_se, num_conn_pairs, label, centrality, node_count, rewire_f, butterfly_m,"targeted"]
         out.write(",".join([str(d) for d in row]) + "\n")
         out.flush()
         finished += 1
-        if centrality == 0:
+        if centrality == 0 or finished >= 500:
             break
 log.info("Finished simulation, writing graph")
 with open(exp.get_filename(graph_file), "wb") as f:
